@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "fYMulR8T6jxRuKxTqEFE/wT1ojPlvsTlC5nHaTkmRg7xF6N7c2SKnjoBsovzhyamvLme4mOdg3U6xfIgJat7Dw==",
+  "success": true,
+  "projectFilePath": "D:\\zeehyo\\Wordle\\Wordle\\Wordle.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zeehy\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.11.1\\microsoft.visualstudio.azure.containers.tools.targets.1.11.1.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -1,0 +1,208 @@
+﻿@page "/wordle"
+@using System;
+@using System.IO;
+@using System.Linq;
+
+<style>
+    span {
+        font-size: 21px;
+        text-decoration-line: underline;
+        text-decoration-thickness: 5px;
+    }
+    p{
+        font-size: 21px;
+    }
+    .box {
+        font-family: "nyt-franklin";
+        width: 24px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        line-height: 1;
+        font-weight: bold;
+        vertical-align: middle;
+        box-sizing: border-box;
+        text-transform: uppercase;
+    }
+</style>
+
+<h1>Wordle by ZeeHyo</h1>
+<h3> - for 해연</h3>
+
+<p>Welcome to the word guessing game!</p>
+<p>Guess a five-letter word:</p>
+<form @onsubmit="PlayGame">
+    <input placeholder="Insert word." @bind-value="guess" />
+    <button style="display: @display" class="btn btn-primary" @onclick="PlayGame">Guess!</button>
+    <button style="display: @display2" class="btn btn-primary" onClick="window.location.reload()">New Game!</button>
+</form>
+
+
+<p>
+    <p>Trial 1:</p>
+    @foreach (var feedback in feedback1)
+    {
+        <div class="box" style="background-color: @feedback.Color">@feedback.Letter</div>
+    }
+</p>
+<p>
+    <p>Trial 2:</p>
+    @foreach (var feedback in feedback2)
+    {
+        <div class="box" style="background-color: @feedback.Color">@feedback.Letter</div>
+    }
+</p>
+<p>
+     <p>Trial 3:</p>
+    @foreach (var feedback in feedback3)
+    {
+        <div class="box" style="background-color: @feedback.Color">@feedback.Letter</div>
+    }
+</p>
+<p>
+    <p>Trial 4:</p>
+    @foreach (var feedback in feedback4)
+    {
+        <div class="box" style="background-color: @feedback.Color">@feedback.Letter</div>
+    }
+</p>
+<p>
+    <p>Trial 5:</p>
+    @foreach (var feedback in feedback5)
+    {
+        <div class="box" style="background-color: @feedback.Color">@feedback.Letter</div>
+    }
+</p>
+<p>@end</p>
+
+
+@code {
+    public class Feedback
+    {
+        public char Letter { get; }
+        public string Color { get; }
+
+        public Feedback(char letter, string color)
+        {
+            Letter = letter;
+            Color = color;
+        }
+    }
+
+    private static readonly Random Random = new Random();
+
+    private static string GenerateWord()
+    {
+        var words = File.ReadAllLines("./Pages/wordlist.txt");
+        return words[Random.Next(words.Length)];
+    }
+
+    private static bool CheckWord(string word)
+    {
+        var words = File.ReadAllLines("./Pages/wordlist.txt");
+        bool check = words.Any(w => w == word);
+
+        return check;
+    }
+
+    private static Feedback[] CheckGuess(string word, string guess)
+    {
+        //var words1 = File.ReadAllLines("./Pages/wordlist.txt");
+        if (word.Length != 5) return null;
+        if (guess.Length != 5) return null;
+        //if (!(words1.Contains(word))) return null;
+        if (!CheckWord(guess)) return null;
+        var result = new Feedback[word.Length];
+        for (int i = 0; i < word.Length; i++)
+        {
+            if (guess[i] == word[i])
+            {
+                result[i] = new Feedback(guess[i], "#82E0AA");
+            }
+            else if (word.Contains(guess[i]))
+            {
+                result[i] = new Feedback(guess[i], "#F4D03F");
+            }
+            else
+            {
+                result[i] = new Feedback(guess[i], "white");
+            }
+        }
+        return result;
+    }
+
+    //public string word = "skull";
+    public string word = GenerateWord().Trim();
+    public bool h = CheckWord("apple");
+    public string guess;
+    public int trial = 0;
+
+    //Feedback def = new Feedback(' ', "black");
+
+    Feedback[] feedback1 = new Feedback[] { new Feedback(' ', "black") };
+    Feedback[] feedback2 = new Feedback[] { new Feedback(' ', "black") };
+    Feedback[] feedback3 = new Feedback[] { new Feedback(' ', "black") };
+    Feedback[] feedback4 = new Feedback[] { new Feedback(' ', "black") };
+    Feedback[] feedback5 = new Feedback[] { new Feedback(' ', "black") };
+    public string end;
+
+    public string display = "inliine";
+    public string display2 = "none";
+
+    private void PlayGame()
+    {
+        if (guess == null) { return; }
+        //var feedlist = new[] { feedback1, feedback2, feedback3, feedback4, feedback5 };
+        var feedback = CheckGuess(word, guess);
+        if (feedback == null)
+        {
+            end = "Invalid word. Check the number of letters.";
+            return;
+        }
+        end = "";
+        switch (trial)
+        {
+            case 0:
+                feedback1 = feedback;
+                break;
+            case 1:
+                feedback2 = feedback;
+                break;
+            case 2:
+                feedback3 = feedback;
+                break;
+            case 3:
+                feedback4 = feedback;
+                break;
+            case 4:
+                feedback5 = feedback;
+                break;
+        }
+        trial++;
+        guess = null;
+        if (trial > 4)
+        {
+            end = "Sorry, you ran out of guesses. The word was " + word;
+            display = "none";
+            display2 = "inliine";
+        }
+
+        @*var i = 1;
+        foreach (Feedback feed in feedback)
+        {
+            if (feed.Color != "green")
+            {
+                i = 0;
+            }
+        }*@
+
+    if (feedback.All(x => x.Color == "#82E0AA"))
+    {
+        end = "Congratulations, you guessed the word within " + trial + " trials!";
+        display = "none";
+        display2 = "inliine";
+        return;
+    }
+}
+}
